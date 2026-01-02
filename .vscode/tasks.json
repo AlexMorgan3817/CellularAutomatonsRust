@@ -28,7 +28,7 @@
 		},
 		{
 			"type": "shell",
-			"command": "cargo run --release 100 100 -s 1000 res -o result/out.frame",
+			"command": "cargo run --release -- 100 100 -s 1000 res -o result/out.frame",
 			"problemMatcher": ["$rustc"],
 			"group": "build", "label": "Run Res Test"
 		}

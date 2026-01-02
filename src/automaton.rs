@@ -1,5 +1,4 @@
 use std::mem::swap;
-use std::{collections::HashMap};
 use rand::{random_range, random_bool};
 use colored::Colorize;
 use rayon::prelude::*;
@@ -8,44 +7,40 @@ pub struct CellularAutomaton {
 	// cells: LinkedList<LinkedList<i32>>,
 	// cells: &[&[i32; Y]; X],
 	// cells: Vec<Vec<i32>>,/
-	pub cells: HashMap<(u32, u32), i32>,
-	next_cells: HashMap<(u32, u32), i32>,
-	pub x:u32,
-	pub y:u32
+	pub cells: Vec<Vec<i32>>,
+	next_cells: Vec<Vec<i32>>,
+	pub x:usize,
+	pub y:usize
 }
 
 impl CellularAutomaton {
-	pub fn new(x:u32, y:u32) -> CellularAutomaton {
+	pub fn new(x:usize, y:usize) -> CellularAutomaton {
 		let mut this = CellularAutomaton{
-			cells: HashMap::new(),
-			next_cells: HashMap::new(),
+			cells: vec![vec![0; y]; x],
+			next_cells: vec![vec![0; y]; x],
 			x:x, y:y
 		};
 		this.set_xy(x, y, 0);
 		this
 	}
 
-	pub fn set_xy(&mut self, x:u32, y:u32, state: i32) -> &mut Self {
-		self.cells.clear();
+	pub fn set_xy(&mut self, x:usize, y:usize, state: i32) -> &mut Self {
 		self.x = x;
 		self.y = y;
-		for i in 0..x {
-			// self.cells.push_back(HashMap::new());
-			for j in 0..y {
-				self.cells.insert((i, j), state);
-				// self.cells[i][j] = state;
-				// self.cells[i].push_back(state);
+		self.cells = Vec::new();
+		for _ in 0..x {
+			let mut row = Vec::new();
+			for _ in 0..y {
+				row.push(state);
 			}
+			self.cells.push(row);
 		}
 		self
 	}
 
-	pub fn next(&self, xy:&(u32, u32)) -> i32 {
-
-		let x = xy.0;
-		let y = xy.1;
+	pub fn next(&self, x:usize, y:usize) -> i32 {
 		let mut living_count = 0;
-		let mystate = self.cells.get(xy).unwrap();
+		let mystate = self.cells[x][y];
 		for i in -1..2
 		{
 			for j in -1..2
@@ -56,22 +51,30 @@ impl CellularAutomaton {
 				{
 					continue;
 				}
-				if self.cells.get(&(nx as u32, ny as u32)).unwrap() == &1{
+				if self.cells[nx as usize][ny as usize] == 1{
 					living_count += 1;
 				}
 			}
 		}
-		if mystate == &0{
-			if  living_count == 3{
+		if mystate == 0
+		{
+			if  living_count == 3
+			{
 				1
-			} else {
+			}
+			else
+			{
 				0
 			}
 		}
-		else {
-			if living_count < 2 || living_count > 3 {
+		else
+		{
+			if living_count < 2 || living_count > 3
+			{
 				0
-			} else {
+			}
+			else
+			{
 				1
 			}
 		}
@@ -93,22 +96,12 @@ impl CellularAutomaton {
 	// }
 
 	pub fn step(&mut self) -> &mut Self {
-		let coords: Vec<(u32, u32)> = (0..self.x)
-			.flat_map(|x| (0..self.y).map(move |y| (x, y)))
-			.collect();
-
-		let results: Vec<((u32, u32), i32)> = coords.par_iter()
-			.map(|&loc| {
-				let nv = self.next(&loc);
-				(loc, nv)
-			})
-			.collect();
-
-		self.next_cells.clear();
-		for (loc, nv) in results {
-			self.next_cells.insert(loc, nv);
+		for i in 0..self.x {
+			for j in 0..self.y{
+				let nv = self.next(i, j);
+				self.next_cells[i][j] = nv;
+			}
 		}
-
 		swap(&mut self.cells, &mut self.next_cells);
 		self
 	}
@@ -122,30 +115,31 @@ impl CellularAutomaton {
 	pub fn print(&self) -> &Self {
 		for y in 0..self.y {
 			for x in 0..self.x {
-				let v = self.cells.get(&(x,y)).unwrap();
-				if v == &1{
-					print!("{}", "#".green());
-				} else {
-					print!("{}", "_".red());
-				}
+				let v = self.cells[x][y];
+				if v == 1 {print!("{}", "#".green());}
+				else      {print!("{}", "X".red()  );}
 			}
 			print!("\n");
 		}
 		self
 	}
 	pub fn randomize(&mut self) -> &mut Self {
-		for x in 0..self.x {
-			for y in 0..self.y {
-				self.cells.insert((x,y), random_range(0..2));
+		for x in 0..self.x
+		{
+			for y in 0..self.y
+			{
+				self.cells[x][y] = random_range(0..2);
 			}
 		}
 		self
 	}
 	pub fn randomize_prob(&mut self, alive_probability:f64) -> &mut Self {
-		for x in 0..self.x {
-			for y in 0..self.y {
+		for x in 0..self.x
+		{
+			for y in 0..self.y
+			{
 				let p = random_bool(alive_probability);
-				self.cells.insert((x,y), p as i32);
+				self.cells[x][y] = p as i32;
 			}
 		}
 		self
@@ -159,7 +153,7 @@ mod tests {
 
     use crate::automaton::CellularAutomaton;
 
-	fn bechmark(steps_count: u32, threshold: u128, x: u32, y: u32) -> u128{
+	fn bechmark(steps_count: u32, threshold: u128, x: usize, y: usize) -> u128{
 		let mut c:CellularAutomaton = CellularAutomaton::new(x, y);
 		c.randomize();
 		let prev = time::Instant::now();
@@ -176,7 +170,7 @@ mod tests {
 		elapsed
 	}
 
-	fn testing(threshold: u128, steps_count: u32, x: u32, y: u32, tests_count:u32){
+	fn testing(threshold: u128, steps_count: u32, x: usize, y: usize, tests_count:u32){
 		println!("{} {} {} {}", steps_count, threshold, x, y);
 		for i in 0..tests_count{
 			let result:u128 = bechmark(steps_count, threshold, x, y);

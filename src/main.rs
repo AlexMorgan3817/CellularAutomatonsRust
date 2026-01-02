@@ -11,7 +11,7 @@ pub mod automaton;
 use crate::automaton::CellularAutomaton;
 
 pub mod webping;
-use crate::webping::{save_webp_anim, save_webp};
+use crate::webping::{save_webp_anim};
 
 fn prompt<T>(prompt: &str) -> T where T: std::str::FromStr + Debug {
 	print!("{} ", prompt);
@@ -31,9 +31,9 @@ struct Args {
 	#[command(subcommand)]
     command: Commands,
 	#[arg(index=1, default_value_t = 100, global=true)]
-	width: u32,
+	width: usize,
 	#[arg(index=2, default_value_t = 100, global=true)]
-	height: u32,
+	height: usize,
 	#[arg(short='s', long="steps", default_value_t = 100)]
 	steps: u64,
 	#[arg(short='p', long="prob", default_value_t = 50.0)]
@@ -79,7 +79,7 @@ fn main() {
 	// }
 }
 
-fn result(width:u32, height:u32, steps:u64, alive_prob:f64, output:String) {
+fn result(width:usize, height:usize, steps:u64, alive_prob:f64, output:String) {
 	let mut sample_automaton = CellularAutomaton::new(width, height);
 	sample_automaton
 		.randomize_prob(alive_prob / 100.0)
@@ -87,17 +87,20 @@ fn result(width:u32, height:u32, steps:u64, alive_prob:f64, output:String) {
 		// .print()
 	;
 	let mut dot = String::new();
-	sample_automaton.cells.iter().for_each(
-		|cell|
-		dot.push_str(format!("({}, {}): {}\n", cell.0.0, cell.0.1, cell.1).as_str())
-	);
+	sample_automaton.cells.iter().enumerate().for_each(
+		|(xdx, row)|
+		// "({}, {}): {}\n", cell.0.0, cell.0.1, cell.1).as_str()
+			row.iter().enumerate().for_each(|(ydx, value)|
+				dot.push_str(format!("{} {}: {}\n", xdx, ydx, value).as_str()),
+			)
+		);
 	match std::fs::write(&output, dot){
 		Ok(_v) => println!("Saved to {}", &output),
 		Err(e) => println!("Failed to save to {}, error: {}", &output, e)
 	};
 }
 
-fn animated(width:u32, height:u32, steps:u64, alive_prob:f64, delay:u32) {
+fn animated(width:usize, height:usize, steps:u64, alive_prob:f64, delay:u32) {
 	let mut sample_automaton = CellularAutomaton::new(width, height);
 	clear().expect("failed to clear screen");
 	println!("Starting...");
@@ -117,7 +120,7 @@ fn animated(width:u32, height:u32, steps:u64, alive_prob:f64, delay:u32) {
 	}
 }
 
-fn webp(width:u32, height:u32, steps:u64, alive_prob:f64, output:String) {
+fn webp(width:usize, height:usize, steps:u64, alive_prob:f64, output:String) {
 	let mut sample_automaton = CellularAutomaton::new(width, height);
 	println!("{}", alive_prob / 100.0);
 	sample_automaton.randomize_prob(alive_prob / 100.0);
