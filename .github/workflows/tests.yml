@@ -19,8 +19,6 @@ jobs:
     - name: Build
       run: cargo build --release --verbose
     - name: Run tests
-      run: cargo test  --release --verbose
+      run: cargo test --release --all" -- --nocapture --test-threads=1
     - name: Run res
       run: cargo run --release -- 100 100 -s 1000 res -o result/out.frame
-    # - name: Run gen
-    #   run: cargo run --release -- 100 100 -s 1000 webp
