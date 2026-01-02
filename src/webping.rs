@@ -35,11 +35,11 @@ pub fn save_webp_anim(
 	let mut encoder = Encoder::new(dimensions)?;
 
 	for (i, frame) in frames.iter().enumerate() {
+		let mut rgba = vec![0u8; (width * height * 4) as usize];
 		for x in 0..width{
 			for y in 0..height{
 				let value = frame[x as usize][y as usize];
-				let mut rgba = vec![0u8; (width * height * 4) as usize];
-				let idx = ((y as u32 * width + x as u32) * 4) as usize;
+				let idx: usize = ((y as u32 * width + x as u32) * 4) as usize;
 				if value == 1 {
 					rgba[idx + 0] = 255;
 					rgba[idx + 1] = 255;
@@ -51,10 +51,11 @@ pub fn save_webp_anim(
 					rgba[idx + 2] = 0;
 					rgba[idx + 3] = 255;
 				}
-				let ts = i as i32 * frame_ms;
-				encoder.add_frame(&rgba, ts)?;
 			}
 		}
+		let ts = i as i32 * frame_ms;
+		println!("{ts}: {i}, {frame_ms}");
+		encoder.add_frame(&rgba, ts)?;
 	}
 
 	let final_ts = frames.len() as i32 * frame_ms;
