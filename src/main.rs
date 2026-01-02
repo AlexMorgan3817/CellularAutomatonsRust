@@ -1,10 +1,9 @@
-use std::fmt::Debug;
-use std::io::Write;
 use std::time;
 use std::time::Duration;
 use std::thread;
 use std::io;
 use clearscreen::clear;
+use std::fmt::Debug;
 use clap::{Parser, Subcommand};
 
 pub mod automaton;
@@ -13,18 +12,18 @@ use crate::automaton::CellularAutomaton;
 pub mod webping;
 use crate::webping::{save_webp_anim};
 
-fn prompt<T>(prompt: &str) -> T where T: std::str::FromStr + Debug {
-	print!("{} ", prompt);
-	let _ = io::stdout().flush();
-	match io::stdin().lines()
-		.next()
-		.unwrap().unwrap()
-		.trim()
-		.parse() {
-		Ok(v) => v,
-		Err(_e) => panic!("Failed to parse input.")
-	}
-}
+// fn prompt<T>(prompt: &str) -> T where T: std::str::FromStr + Debug {
+// 	print!("{} ", prompt);
+// 	let _ = io::stdout().flush();
+// 	match io::stdin().lines()
+// 		.next()
+// 		.unwrap().unwrap()
+// 		.trim()
+// 		.parse() {
+// 		Ok(v) => v,
+// 		Err(_e) => panic!("Failed to parse input.")
+// 	}
+// }
 
 #[derive(Parser, Debug)]
 struct Args {

@@ -79,21 +79,6 @@ impl CellularAutomaton {
 			}
 		}
 	}
-
-	// pub fn step(&mut self) -> &mut Self {
-	// 	// let new_cells = &self.next_cells;
-	// 	let cells = &self.cells;
-	// 	for x in 0..self.x {
-	// 		for y in 0..self.y{
-	// 			let loc:(i32, i32) = (x, y);
-	// 			let nv = self.next(&loc);
-	// 			self.next_cells.insert((x,y), nv);
-	// 			// new_cells[x][y] = nv;
-	// 		}
-	// 	}
-	// 	swap(&mut self.cells, &mut self.next_cells);
-	// 	self
-	// }
 	pub fn step(&mut self) -> &mut Self {
 		let results: Vec<Vec<i32>> = (0..self.x)
 			.into_par_iter()
@@ -108,16 +93,6 @@ impl CellularAutomaton {
 		swap(&mut self.cells, &mut self.next_cells);
 		self
 	}
-	// pub fn step(&mut self) -> &mut Self {
-	// 	for i in 0..self.x {
-	// 		for j in 0..self.y{
-	// 			let nv = self.next(i, j);
-	// 			self.next_cells[i][j] = nv;
-	// 		}
-	// 	}
-	// 	swap(&mut self.cells, &mut self.next_cells);
-	// 	self
-	// }
 	pub fn steps(&mut self, steps:u64) -> &mut Self {
 		for _ in 0..steps {
 			self.step();
