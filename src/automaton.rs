@@ -1,6 +1,6 @@
 use std::mem::swap;
 use std::{collections::HashMap};
-use rand::random_range;
+use rand::{random_range, random_bool};
 use colored::Colorize;
 use rayon::prelude::*;
 
@@ -109,8 +109,8 @@ impl CellularAutomaton {
 	}
 
 	pub fn print(&self) -> &Self {
-		for x in 0..self.x {
-			for y in 0..self.y {
+		for y in 0..self.y {
+			for x in 0..self.x {
 				let v = self.cells.get(&(x,y)).unwrap();
 				if v == &1{
 					print!("{}", "#".green());
@@ -126,6 +126,15 @@ impl CellularAutomaton {
 		for x in 0..self.x {
 			for y in 0..self.y {
 				self.cells.insert((x,y), random_range(0..2));
+			}
+		}
+		self
+	}
+	pub fn randomize_prob(&mut self, alive_probability:f64) -> &mut Self {
+		for x in 0..self.x {
+			for y in 0..self.y {
+				let p = random_bool(alive_probability);
+				self.cells.insert((x,y), p as i32);
 			}
 		}
 		self
