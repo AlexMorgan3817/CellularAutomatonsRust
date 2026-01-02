@@ -8,22 +8,22 @@
 			"group": "build", "label": "Build Bin Release"
 		},
 		{
-			"type": "cargo", "command": "build",
-			"args": ["--lib"],
-			"problemMatcher": ["$rustc"],
-			"group": "build", "label": "Build Debug"
-		},
-		{
-			"type": "cargo", "command": "build",
-			"args": ["--release", "--lib"],
-			"problemMatcher": ["$rustc"],
-			"group": "build", "label": "Build Release"
-		},
-		{
 			"type": "cargo", "command": "test",
-			"args": ["--release", "--", "--nocapture", "--test-threads=1"],
+			"args": ["--release", "--all", "--", "--nocapture", "--test-threads=1"],
 			"problemMatcher": ["$rustc"],
 			"group": "build", "label": "Test Release"
+		},
+		{
+			"type": "cargo", "command": "run",
+			"args": ["--release"],
+			"problemMatcher": ["$rustc"],
+			"group": "build", "label": "Run Release"
+		},
+		{
+			"type": "cargo", "command": "runx",
+			"args": ["--release"],
+			"problemMatcher": ["$rustc"],
+			"group": "build", "label": "Run Main Test"
 		}
 	]
 }
