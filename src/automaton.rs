@@ -94,17 +94,30 @@ impl CellularAutomaton {
 	// 	swap(&mut self.cells, &mut self.next_cells);
 	// 	self
 	// }
-
 	pub fn step(&mut self) -> &mut Self {
-		for i in 0..self.x {
-			for j in 0..self.y{
-				let nv = self.next(i, j);
-				self.next_cells[i][j] = nv;
-			}
-		}
+		let results: Vec<Vec<i32>> = (0..self.x)
+			.into_par_iter()
+			.map(|i| {
+				(0..self.y)
+					.map(|j| self.next(i, j))
+					.collect()
+			})
+			.collect();
+
+		self.next_cells = results;
 		swap(&mut self.cells, &mut self.next_cells);
 		self
 	}
+	// pub fn step(&mut self) -> &mut Self {
+	// 	for i in 0..self.x {
+	// 		for j in 0..self.y{
+	// 			let nv = self.next(i, j);
+	// 			self.next_cells[i][j] = nv;
+	// 		}
+	// 	}
+	// 	swap(&mut self.cells, &mut self.next_cells);
+	// 	self
+	// }
 	pub fn steps(&mut self, steps:u64) -> &mut Self {
 		for _ in 0..steps {
 			self.step();
