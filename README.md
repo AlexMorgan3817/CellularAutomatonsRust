@@ -1,6 +1,6 @@
 # Cellular Automatons on Rust
 
-[![Video](assets/animation.webp)](assets/animation.webp)
+[![Video](.github/animation.webp)](.github/animation.webp)
 
 ## Benchmark
 

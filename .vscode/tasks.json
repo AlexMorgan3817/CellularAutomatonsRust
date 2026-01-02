@@ -20,10 +20,17 @@
 			"group": "build", "label": "Run Release"
 		},
 		{
-			"type": "cargo", "command": "runx",
-			"args": ["--release"],
+			"type": "cargo", "command": "run",
+			"args": ["--release", "--",
+			"100", "100", "-s", "100", "-p", "55.0", "webp"],
 			"problemMatcher": ["$rustc"],
-			"group": "build", "label": "Run Main Test"
+			"group": "build", "label": "Run WebP Test"
+		},
+		{
+			"type": "shell",
+			"command": "cargo run --release 100 100 -s 1000 res -o result/out.frame",
+			"problemMatcher": ["$rustc"],
+			"group": "build", "label": "Run Res Test"
 		}
 	]
 }

@@ -8,20 +8,24 @@ pub struct CellularAutomaton {
 	// cells: LinkedList<LinkedList<i32>>,
 	// cells: &[&[i32; Y]; X],
 	// cells: Vec<Vec<i32>>,/
-	pub cells: HashMap<(i32, i32), i32>,
-	next_cells: HashMap<(i32, i32), i32>,
-	pub x:i32,
-	pub y:i32
+	pub cells: HashMap<(u32, u32), i32>,
+	next_cells: HashMap<(u32, u32), i32>,
+	pub x:u32,
+	pub y:u32
 }
 
 impl CellularAutomaton {
-	pub fn new(x:i32, y:i32) -> CellularAutomaton {
-		let mut this = CellularAutomaton{cells: HashMap::new(), next_cells: HashMap::new(), x:x, y:y};
+	pub fn new(x:u32, y:u32) -> CellularAutomaton {
+		let mut this = CellularAutomaton{
+			cells: HashMap::new(),
+			next_cells: HashMap::new(),
+			x:x, y:y
+		};
 		this.set_xy(x, y, 0);
 		this
 	}
 
-	pub fn set_xy(&mut self, x: i32, y: i32, state: i32) -> &mut Self {
+	pub fn set_xy(&mut self, x:u32, y:u32, state: i32) -> &mut Self {
 		self.cells.clear();
 		self.x = x;
 		self.y = y;
@@ -36,7 +40,7 @@ impl CellularAutomaton {
 		self
 	}
 
-	pub fn next(&self, xy:&(i32, i32)) -> i32 {
+	pub fn next(&self, xy:&(u32, u32)) -> i32 {
 
 		let x = xy.0;
 		let y = xy.1;
@@ -46,12 +50,13 @@ impl CellularAutomaton {
 		{
 			for j in -1..2
 			{
-				let nx = x + i;
-				let ny = y + j;
-				if nx < 0 || ny < 0 || nx >= self.x || ny >= self.y{
+				let nx = x as i32 + i as i32;
+				let ny = y as i32 + j as i32;
+				if nx < 0 || ny < 0 || nx >= self.x as i32 || ny >= self.y as i32
+				{
 					continue;
 				}
-				if self.cells.get(&(nx,ny)).unwrap() == &1{
+				if self.cells.get(&(nx as u32, ny as u32)).unwrap() == &1{
 					living_count += 1;
 				}
 			}
@@ -88,11 +93,11 @@ impl CellularAutomaton {
 	// }
 
 	pub fn step(&mut self) -> &mut Self {
-		let coords: Vec<(i32, i32)> = (0..self.x)
+		let coords: Vec<(u32, u32)> = (0..self.x)
 			.flat_map(|x| (0..self.y).map(move |y| (x, y)))
 			.collect();
 
-		let results: Vec<((i32, i32), i32)> = coords.par_iter()
+		let results: Vec<((u32, u32), i32)> = coords.par_iter()
 			.map(|&loc| {
 				let nv = self.next(&loc);
 				(loc, nv)
@@ -105,6 +110,12 @@ impl CellularAutomaton {
 		}
 
 		swap(&mut self.cells, &mut self.next_cells);
+		self
+	}
+	pub fn steps(&mut self, steps:u64) -> &mut Self {
+		for _ in 0..steps {
+			self.step();
+		}
 		self
 	}
 
@@ -148,7 +159,7 @@ mod tests {
 
     use crate::automaton::CellularAutomaton;
 
-	fn bechmark(steps_count: i32, threshold: u128, x: i32, y: i32) -> u128{
+	fn bechmark(steps_count: u32, threshold: u128, x: u32, y: u32) -> u128{
 		let mut c:CellularAutomaton = CellularAutomaton::new(x, y);
 		c.randomize();
 		let prev = time::Instant::now();
@@ -165,7 +176,7 @@ mod tests {
 		elapsed
 	}
 
-	fn testing(threshold: u128, steps_count: i32, x: i32, y: i32, tests_count:i32){
+	fn testing(threshold: u128, steps_count: u32, x: u32, y: u32, tests_count:u32){
 		println!("{} {} {} {}", steps_count, threshold, x, y);
 		for i in 0..tests_count{
 			let result:u128 = bechmark(steps_count, threshold, x, y);

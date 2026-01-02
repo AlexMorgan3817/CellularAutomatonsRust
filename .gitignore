@@ -2,3 +2,4 @@ debug/
 target/
 **/mutants.out*/
 result/
+*.frame
