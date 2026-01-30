@@ -36,11 +36,11 @@ pub fn conway_next(c: &CellularAutomaton, x:usize, y:usize) -> i32{
 #[inline(always)]
 pub fn corridors_next(automaton:&CellularAutomaton, x:usize, y:usize) -> i32{
 	let iam = automaton.cells[x][y];
-	let mut living = 0;
-	if x+1 < automaton.x {living += automaton.cells[x+1][y];}
-	if x > 0 {living += automaton.cells[x-1][y];}
-	if y+1 < automaton.y {living += automaton.cells[x][y+1];}
-	if y > 0 {living += automaton.cells[x][y-1];}
+	// let mut living = 0;
+	// if x+1 < automaton.x {living += automaton.cells[x+1][y];}
+	// if x > 0 {living += automaton.cells[x-1][y];}
+	// if y+1 < automaton.y {living += automaton.cells[x][y+1];}
+	// if y > 0 {living += automaton.cells[x][y-1];}
 
 	let mut d = 0;
 	if x > 0{

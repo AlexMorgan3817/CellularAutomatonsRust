@@ -10,6 +10,7 @@ pub mod automaton;
 use crate::automaton::CellularAutomaton;
 
 pub mod strats;
+use crate::strats::conway_next;
 use crate::strats::corridors_next;
 
 pub mod webping;
@@ -84,14 +85,15 @@ fn main() {
 }
 
 fn result(width:usize, height:usize, steps:u64, alive_prob:f64, output:String) {
-	let mut sample_automaton = CellularAutomaton::new(width, height);
-	sample_automaton
+	let mut c = CellularAutomaton::new(width, height);
+	c.set_processor(conway_next);
+	c
 		.randomize_prob(alive_prob / 100.0)
 		.steps(steps)
 		// .print()
 	;
 	let mut dot = String::new();
-	sample_automaton.cells.iter().enumerate().for_each(
+	c.cells.iter().enumerate().for_each(
 		|(xdx, row)|
 		// "({}, {}): {}\n", cell.0.0, cell.0.1, cell.1).as_str()
 			row.iter().enumerate().for_each(|(ydx, value)|
@@ -106,14 +108,12 @@ fn result(width:usize, height:usize, steps:u64, alive_prob:f64, output:String) {
 
 fn animated(width:usize, height:usize, steps:u64, alive_prob:f64, delay:u32, preview:bool) {
 	let mut c = CellularAutomaton::new(width, height);
-	c.set_processor(corridors_next);
+	c.set_processor(conway_next);
 	clear().expect("failed to clear screen");
+	c.randomize_prob(alive_prob / 100.0).print();
 	println!("Starting...");
 	println!("Press enter to start...");
 	println!("{}", alive_prob / 100.0);
-	c
-		.randomize_prob(alive_prob / 100.0)
-		.print();
 	if preview
 	{
 		let mut input = String::new();
@@ -132,7 +132,7 @@ fn animated(width:usize, height:usize, steps:u64, alive_prob:f64, delay:u32, pre
 
 fn webp(width:usize, height:usize, steps:u64, alive_prob:f64, output:String) {
 	let mut c = CellularAutomaton::new(width, height);
-	c.set_processor(corridors_next);
+	c.set_processor(conway_next);
 	println!("{}", alive_prob / 100.0);
 	c.randomize_prob(alive_prob / 100.0);
 	let now = time::Instant::now();
