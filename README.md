@@ -5,6 +5,8 @@ Cellular Automatons on Rust
 <div align="center">
 High-performance Conway's Game of Life implementation in Rust with CLI, WebP animation export.
 
+---
+
 ![alt text](.github/animation.new.gif)
 
 Conway's game of life
@@ -12,9 +14,6 @@ Conway's game of life
 ![alt text](.github/animation.new.corridors.gif)
 
 Corridors generator mk2
-
-[![Video](.github/animation.webp)](.github/animation.webp)
-Legacy animation
 </div>
 
 ## Milestones
