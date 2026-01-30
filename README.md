@@ -1,8 +1,28 @@
 # Cellular Automatons on Rust
 
-High-performance Conway's Game of Life implementation in Rust** with CLI, WebP animation export
+High-performance Conway's Game of Life implementation in Rust with CLI, WebP animation export.
+<center>
+
+![alt text](.github/animation.new.gif)
+
+Conway's game of life
+
+![alt text](.github/animation.new.corridors.gif)
+
+Corridors generator mk2
 
 [![Video](.github/animation.webp)](.github/animation.webp)
+Legacy animation
+</center>
+
+## Milestones
+- [X] Lib
+	- [X] Optimizations
+	- [X] Rules/Strats
+- [X] CLI
+- [ ] Cargo Crate
+	- [ ] Godot lib (or just implementation in HOA game)
+	- [ ] CApi dll lib for BYOND and any other.
 
 ## Benchmark
 

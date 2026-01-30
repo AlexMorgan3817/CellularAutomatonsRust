@@ -4,3 +4,4 @@ target/
 result/
 *.frame
 *.webp
+!.github/*.webp
