@@ -21,7 +21,7 @@ use crate::webping::{save_webp_anim};
 // 		.trim()
 // 		.parse() {
 // 		Ok(v) => v,
-// 		Err(_e) => panic!("Failed to parse input.")
+// 		Err(_e) => panic!("Failed to parse input")
 // 	}
 // }
 
@@ -115,7 +115,7 @@ fn animated(width:usize, height:usize, steps:u64, alive_prob:f64, delay:u32) {
 		sample_automaton.step();
 		clear().expect("failed to clear screen");
 		sample_automaton.print();
-		thread::sleep(Duration::from_millis(300 as u64));
+		thread::sleep(Duration::from_millis(delay as u64));
 	}
 }
 

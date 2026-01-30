@@ -126,3 +126,7 @@ test automaton::tests::test33_50_1000x1000 ... 50 15000 1000 1000
 Test 0: 0.346s (15.000s): OK
 ```
 ![alt text](.github/RayonBench.png)
+
+
+
+

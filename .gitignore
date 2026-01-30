@@ -3,3 +3,4 @@ target/
 **/mutants.out*/
 result/
 *.frame
+*.webp

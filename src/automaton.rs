@@ -37,50 +37,42 @@ impl CellularAutomaton {
 		}
 		self
 	}
-
+	#[inline]
 	pub fn next(&self, x:usize, y:usize) -> i32 {
 		let mut living_count = 0;
 		let mystate = self.cells[x][y];
-		for i in -1..2
-		{
-			for j in -1..2
-			{
-				let nx = x as i32 + i as i32;
-				let ny = y as i32 + j as i32;
-				if nx < 0 || ny < 0 || nx >= self.x as i32 || ny >= self.y as i32
-				{
-					continue;
-				}
-				if self.cells[nx as usize][ny as usize] == 1{
-					living_count += 1;
+		if (x > 0 && y > 0) && (x < self.x - 1 && y < self.y - 1) { // Inner Volume
+			for i in -1..=1 {
+				for j in -1..=1 {
+					if i == 0 && j == 0 { continue; }
+					if self.cells[(x as i32 + i) as usize][(y as i32 + j) as usize] == 1 {
+						living_count += 1;
+					}
 				}
 			}
-		}
-		if mystate == 0
-		{
-			if  living_count == 3
-			{
-				1
-			}
-			else
-			{
-				0
-			}
-		}
-		else
-		{
-			if living_count < 2 || living_count > 3
-			{
-				0
-			}
-			else
-			{
-				1
+		} else { // bounds
+			for i in -1..=1{
+				for j in -1..=1{
+					let nx = x as i32 + i;
+					let ny = y as i32 + j;
+					if nx < 0 || ny < 0 || nx >= self.x as i32 || ny >= self.y as i32
+					{
+						continue;
+					}
+					if self.cells[nx as usize][ny as usize] == 1{
+						living_count += 1;
+					}
+				}
 			}
 		}
+		match (mystate, living_count) {
+			(1, 2) | (1, 3) | (0, 3) => 1,
+			_ => 0,
+    	}
 	}
+
 	pub fn step(&mut self) -> &mut Self {
-		let results: Vec<Vec<i32>> = (0..self.x)
+		self.next_cells = (0..self.x)
 			.into_par_iter()
 			.map(|i| {
 				(0..self.y)
@@ -88,8 +80,6 @@ impl CellularAutomaton {
 					.collect()
 			})
 			.collect();
-
-		self.next_cells = results;
 		swap(&mut self.cells, &mut self.next_cells);
 		self
 	}
@@ -196,6 +186,10 @@ mod tests {
 	#[test]
 	fn test15_100_1000x1000(){
 		testing(20000, 100, 1000, 1000, 1);
+	}
+	#[test]
+	fn test16_1000_1000x1000(){
+		testing(25000, 1000, 1000, 1000, 1);
 	}
 	#[test]
 	fn test21_1000(){

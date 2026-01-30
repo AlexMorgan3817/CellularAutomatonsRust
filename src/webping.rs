@@ -1,7 +1,7 @@
 use image;
 use image::ImageBuffer;
 use image::Rgb;
-use webp_animation::prelude::*;
+use webp_animation::prelude::Encoder;
 
 pub fn save_webp(cells: Vec<Vec<i32>>, width: u32, height: u32, path: &str) {
 	// let mut imgbuf = ImageBuffer::new(width, height);
@@ -41,20 +41,13 @@ pub fn save_webp_anim(
 				let value = frame[x as usize][y as usize];
 				let idx: usize = ((y as u32 * width + x as u32) * 4) as usize;
 				if value == 1 {
-					rgba[idx + 0] = 255;
-					rgba[idx + 1] = 255;
-					rgba[idx + 2] = 255;
-					rgba[idx + 3] = 255;
+					rgba[idx..idx+4].copy_from_slice(&[255, 255, 255, 255]);
 				} else {
-					rgba[idx + 0] = 0;
-					rgba[idx + 1] = 0;
-					rgba[idx + 2] = 0;
-					rgba[idx + 3] = 255;
+					rgba[idx..idx+4].copy_from_slice(&[0, 0, 0, 255]);
 				}
 			}
 		}
 		let ts = i as i32 * frame_ms;
-		println!("{ts}: {i}, {frame_ms}");
 		encoder.add_frame(&rgba, ts)?;
 	}
 
