@@ -1,7 +1,9 @@
-use std::mem::swap;
+use std::{mem::swap};
 use rand::{random_range, random_bool};
 use colored::Colorize;
 use rayon::prelude::*;
+
+use crate::strats::conway_next;
 
 pub struct CellularAutomaton {
 	// cells: LinkedList<LinkedList<i32>>,
@@ -10,15 +12,24 @@ pub struct CellularAutomaton {
 	pub cells: Vec<Vec<i32>>,
 	next_cells: Vec<Vec<i32>>,
 	pub x:usize,
-	pub y:usize
+	pub y:usize,
+	// pub cell_processor: Arc<dyn Fn(&Self, usize, usize) -> i32 + Sync + Send + 'static>,
+	pub cell_processor: fn(&Self, usize, usize) -> i32,
 }
 
-impl CellularAutomaton {
-	pub fn new(x:usize, y:usize) -> CellularAutomaton {
+impl CellularAutomaton
+{
+	pub fn set_processor(&mut self, processor: fn(&Self, usize, usize) -> i32) -> &mut Self
+	{
+		self.cell_processor = processor;
+		self
+	}
+	pub fn new(x:usize, y:usize) -> CellularAutomaton{
 		let mut this = CellularAutomaton{
 			cells: vec![vec![0; y]; x],
 			next_cells: vec![vec![0; y]; x],
-			x:x, y:y
+			x:x, y:y,
+			cell_processor:conway_next
 		};
 		this.set_xy(x, y, 0);
 		this
@@ -37,38 +48,11 @@ impl CellularAutomaton {
 		}
 		self
 	}
+
 	#[inline]
-	pub fn next(&self, x:usize, y:usize) -> i32 {
-		let mut living_count = 0;
-		let mystate = self.cells[x][y];
-		if (x > 0 && y > 0) && (x < self.x - 1 && y < self.y - 1) { // Inner Volume
-			for i in -1..=1 {
-				for j in -1..=1 {
-					if i == 0 && j == 0 { continue; }
-					if self.cells[(x as i32 + i) as usize][(y as i32 + j) as usize] == 1 {
-						living_count += 1;
-					}
-				}
-			}
-		} else { // bounds
-			for i in -1..=1{
-				for j in -1..=1{
-					let nx = x as i32 + i;
-					let ny = y as i32 + j;
-					if nx < 0 || ny < 0 || nx >= self.x as i32 || ny >= self.y as i32
-					{
-						continue;
-					}
-					if self.cells[nx as usize][ny as usize] == 1{
-						living_count += 1;
-					}
-				}
-			}
-		}
-		match (mystate, living_count) {
-			(1, 2) | (1, 3) | (0, 3) => 1,
-			_ => 0,
-    	}
+	pub fn next(&self, x:usize, y:usize) -> i32
+	{
+		(&self.cell_processor)(self, x, y)
 	}
 
 	pub fn step(&mut self) -> &mut Self {
@@ -94,8 +78,10 @@ impl CellularAutomaton {
 		for y in 0..self.y {
 			for x in 0..self.x {
 				let v = self.cells[x][y];
-				if v == 1 {print!("{}", "#".green());}
-				else      {print!("{}", "X".red()  );}
+				// if v == 1 {print!("{}", "#".green());}
+				// else      {print!("{}", "X".red()  );}
+				if v == 1 {print!("{}", "■".green());}
+				else      {print!("{}", "▢".red()  );}
 			}
 			print!("\n");
 		}
@@ -129,10 +115,21 @@ mod tests {
 	use std::time;
     use colored::{ColoredString, Colorize};
 
-    use crate::automaton::CellularAutomaton;
+    use crate::automaton::{CellularAutomaton};
 
 	fn bechmark(steps_count: u32, threshold: u128, x: usize, y: usize) -> u128{
 		let mut c:CellularAutomaton = CellularAutomaton::new(x, y);
+		c.set_processor(|automaton, x, y|{
+			let mut living = 0;
+			if x+1 < automaton.x {living += automaton.cells[x+1][y];}
+			if x > 0             {living += automaton.cells[x-1][y];}
+			if y+1 < automaton.y {living += automaton.cells[x][y+1];}
+			if y > 0            {living += automaton.cells[x][y-1];}
+			match living > 2 {
+				true => 0,
+				false => 1,
+			}
+		});
 		c.randomize();
 		let prev = time::Instant::now();
 		for _ in 0..steps_count{

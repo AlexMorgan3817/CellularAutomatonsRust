@@ -9,6 +9,9 @@ use clap::{Parser, Subcommand};
 pub mod automaton;
 use crate::automaton::CellularAutomaton;
 
+pub mod strats;
+use crate::strats::corridors_next;
+
 pub mod webping;
 use crate::webping::{save_webp_anim};
 
@@ -43,7 +46,9 @@ struct Args {
 enum Commands {
     Animated {
 		#[arg(short='d', long="delay", default_value_t = 300)]
-		delay:u32
+		delay:u32,
+		#[arg(short='p', long="preview", default_value_t = false)]
+		preview:bool
     },
     Webp {
         #[arg(short='o', long="out", default_value_t = String::from("output.webp"))]
@@ -63,8 +68,8 @@ fn main() {
 	let steps = arguments.steps;
 	let alive_prob = arguments.alive_prob;
 	match arguments.command {
-		Commands::Animated {delay     } =>
-			animated(width, height, steps, alive_prob, delay),
+		Commands::Animated {delay, preview} =>
+			animated(width, height, steps, alive_prob, delay, preview),
 		Commands::Webp        {output } =>
 			webp(width, height, steps, alive_prob, output),
 		Commands::Res         {output } =>
@@ -99,34 +104,41 @@ fn result(width:usize, height:usize, steps:u64, alive_prob:f64, output:String) {
 	};
 }
 
-fn animated(width:usize, height:usize, steps:u64, alive_prob:f64, delay:u32) {
-	let mut sample_automaton = CellularAutomaton::new(width, height);
+fn animated(width:usize, height:usize, steps:u64, alive_prob:f64, delay:u32, preview:bool) {
+	let mut c = CellularAutomaton::new(width, height);
+	c.set_processor(corridors_next);
 	clear().expect("failed to clear screen");
 	println!("Starting...");
 	println!("Press enter to start...");
 	println!("{}", alive_prob / 100.0);
-	sample_automaton
+	c
 		.randomize_prob(alive_prob / 100.0)
 		.print();
-	let mut input = String::new();
-	io::stdin().read_line(&mut input).expect("Read error");
-	thread::sleep(Duration::from_millis(2000));
+	if preview
+	{
+		let mut input = String::new();
+		match io::stdin().read_line(&mut input) {
+			Ok(_v) => println!("Starting animation..."),
+			Err(e) => println!("Failed to read input somehow, error: {}", e),
+		};
+	}
 	for _ in 1..steps{
-		sample_automaton.step();
+		c.step();
 		clear().expect("failed to clear screen");
-		sample_automaton.print();
+		c.print();
 		thread::sleep(Duration::from_millis(delay as u64));
 	}
 }
 
 fn webp(width:usize, height:usize, steps:u64, alive_prob:f64, output:String) {
-	let mut sample_automaton = CellularAutomaton::new(width, height);
+	let mut c = CellularAutomaton::new(width, height);
+	c.set_processor(corridors_next);
 	println!("{}", alive_prob / 100.0);
-	sample_automaton.randomize_prob(alive_prob / 100.0);
+	c.randomize_prob(alive_prob / 100.0);
 	let now = time::Instant::now();
 	let mut frames = Vec::new();
 	for _ in 1..steps{
-		frames.push(sample_automaton.step().cells.clone());
+		frames.push(c.step().cells.clone());
 	}
 	println!("Generated in {}ms", now.elapsed().as_millis());
 	let now_image = time::Instant::now();
