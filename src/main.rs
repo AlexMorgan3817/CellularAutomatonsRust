@@ -11,6 +11,22 @@ use colored::Colorize;
 pub mod automaton;
 use crate::automaton::CellularAutomaton;
 
+
+impl CellularAutomaton {
+	pub fn print(&self) -> &Self {
+		for y in 0..self.y {
+			for x in 0..self.x {
+				let v = self.cells[x][y];
+				// if v == 1 {print!("{}", "#".green());}
+				// else      {print!("{}", "X".red()  );}
+				if v == 1 {print!("{}", "■".green());}
+				else      {print!("{}", "▢".red()  );}
+			}
+			print!("\n");
+		}
+		self
+	}
+}
 pub mod strats;
 use crate::strats::*;
 
@@ -107,31 +123,11 @@ fn result(width:usize, height:usize, steps:u64, alive_prob:f64, output:String) {
 	};
 }
 
-pub fn print_ca(s: &CellularAutomaton) -> &CellularAutomaton {
-	for y in 0..s.y {
-		for x in 0..s.x {
-			let v = s.cells[x][y];
-			// if v == 1 {print!("{}", "#".green());}
-			// else      {print!("{}", "X".red()  );}
-			if v == 1 {print!("{}", "■".green());}
-			else      {print!("{}", "▢".red()  );}
-		}
-		print!("\n");
-	}
-	s
-}
-
-impl CellularAutomaton {
-	pub fn print(&self) -> &Self {
-		print_ca(self)
-	}
-}
-
 fn animated(width:usize, height:usize, steps:u64, alive_prob:f64, delay:u32, preview:bool) {
 	let mut c = CellularAutomaton::new(width, height);
 	c.set_processor(conway_next);
 	clear().expect("failed to clear screen");
-	c.randomize_prob(alive_prob / 100.0);
+	c.randomize_prob(alive_prob / 100.0).print();
 	println!("Starting...");
 	println!("Press enter to start...");
 	println!("{}", alive_prob / 100.0);
@@ -152,8 +148,7 @@ fn animated(width:usize, height:usize, steps:u64, alive_prob:f64, delay:u32, pre
 }
 
 fn webp(width:usize, height:usize, steps:u64, alive_prob:f64, output:String) {
-	let mut c = CellularAutomaton::new(width, height);
-	c.set_processor(conway_next);
+	let mut c = CellularAutomaton::new_with_processor(width, height, conway_next);
 	println!("{}", alive_prob / 100.0);
 	c.randomize_prob(alive_prob / 100.0);
 	let now = time::Instant::now();
