@@ -1,6 +1,5 @@
 use std::{mem::swap};
 use rand::{random_range, random_bool};
-use colored::Colorize;
 use rayon::prelude::*;
 
 use crate::strats::conway_next;
@@ -74,19 +73,7 @@ impl CellularAutomaton
 		self
 	}
 
-	pub fn print(&self) -> &Self {
-		for y in 0..self.y {
-			for x in 0..self.x {
-				let v = self.cells[x][y];
-				// if v == 1 {print!("{}", "#".green());}
-				// else      {print!("{}", "X".red()  );}
-				if v == 1 {print!("{}", "■".green());}
-				else      {print!("{}", "▢".red()  );}
-			}
-			print!("\n");
-		}
-		self
-	}
+	/// TODO: Add randomize strat
 	pub fn randomize(&mut self) -> &mut Self {
 		for x in 0..self.x
 		{
@@ -112,9 +99,9 @@ impl CellularAutomaton
 
 #[cfg(test)]
 mod tests {
+	#[cfg(feature = "cli")]
 	use std::time;
-    use colored::{ColoredString, Colorize};
-
+	use colored::{Colorize, ColoredString};
     use crate::automaton::{CellularAutomaton};
 
 	fn bechmark(steps_count: u32, threshold: u128, x: usize, y: usize) -> u128{
@@ -145,10 +132,14 @@ mod tests {
 		elapsed
 	}
 
-	fn testing(threshold: u128, steps_count: u32, x: usize, y: usize, tests_count:u32){
+	fn testing(threshold: u128, steps_count: u32, x: usize, y: usize, tests_count:u32) -> u128{
 		println!("{} {} {} {}", steps_count, threshold, x, y);
+		let mut results = 0;
+		let mut mean = 0;
 		for i in 0..tests_count{
 			let result:u128 = bechmark(steps_count, threshold, x, y);
+			mean = (mean * (results) + result) / (results + 1);
+			results += 1;
 			let status:ColoredString;
 			if result < threshold{
 				status = "OK".green();
@@ -156,56 +147,60 @@ mod tests {
 				status = "FAIL".red();
 			}
 			println!("Test {}: {:.3}s ({:.3}s): {}",
-				i,
+				i + 1,
 				result as f64 / 1000.0,
 				threshold as f64 / 1000.0,
 				status);
 		}
+		println!("Mean: {:.3}s", mean as f64 / 1000.0);
+		mean
 	}
+
+	pub const TESTS_AMT:u32 = 3;
 
 	#[test]
 	fn test11_100(){
 		// let mut c = CellularAutomaton::new(x, y);
-		testing(200, 100, 100, 100, 1);
+		testing(10, 100, 100, 100, TESTS_AMT);
 	}
 	#[test]
 	fn test12_100_200x200(){
-		testing(400, 100, 200, 200, 1);
+		testing(40, 100, 200, 200, TESTS_AMT);
 	}
 	#[test]
 	fn test13_100_300x300(){
-		testing(1500, 100, 300, 300, 1);
+		testing(50, 100, 300, 300, TESTS_AMT);
 	}
 	#[test]
 	fn test14_100_400x400(){
-		testing(2000, 100, 400, 400, 1);
+		testing(100, 100, 400, 400, TESTS_AMT);
 	}
 	#[test]
 	fn test15_100_1000x1000(){
-		testing(20000, 100, 1000, 1000, 1);
+		testing(500, 100, 1000, 1000, TESTS_AMT);
 	}
 	#[test]
 	fn test16_1000_1000x1000(){
-		testing(25000, 1000, 1000, 1000, 1);
+		testing(3000, 1000, 1000, 1000, TESTS_AMT);
 	}
 	#[test]
 	fn test21_1000(){
-		testing(1500, 1000, 100, 100, 1);
+		testing(200, 1000, 100, 100, TESTS_AMT);
 	}
 	#[test]
 	fn test22_1000_200x200(){
-		testing(3500, 1000, 200, 200, 1);
+		testing(500, 1000, 200, 200, TESTS_AMT);
 	}
 	#[test]
 	fn test31_50_100x100(){
-		testing(100, 50, 100, 100, 1);
+		testing(10, 50, 100, 100, TESTS_AMT);
 	}
 	#[test]
 	fn test32_50_200x200(){
-		testing(300, 50, 200, 200, 1);
+		testing(20, 50, 200, 200, TESTS_AMT);
 	}
 	#[test]
 	fn test33_50_1000x1000(){
-		testing(15000, 50, 1000, 1000, 1);
+		testing(100, 50, 1000, 1000, TESTS_AMT);
 	}
 }

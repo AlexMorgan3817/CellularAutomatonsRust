@@ -1,3 +1,4 @@
+#[cfg(feature = "cli")]
 use std::time;
 use std::time::Duration;
 use std::thread;
@@ -5,13 +6,13 @@ use std::io;
 use clearscreen::clear;
 use std::fmt::Debug;
 use clap::{Parser, Subcommand};
+use colored::Colorize;
 
 pub mod automaton;
 use crate::automaton::CellularAutomaton;
 
 pub mod strats;
-use crate::strats::conway_next;
-use crate::strats::corridors_next;
+use crate::strats::*;
 
 pub mod webping;
 use crate::webping::{save_webp_anim};
@@ -106,11 +107,31 @@ fn result(width:usize, height:usize, steps:u64, alive_prob:f64, output:String) {
 	};
 }
 
+pub fn print_ca(s: &CellularAutomaton) -> &CellularAutomaton {
+	for y in 0..s.y {
+		for x in 0..s.x {
+			let v = s.cells[x][y];
+			// if v == 1 {print!("{}", "#".green());}
+			// else      {print!("{}", "X".red()  );}
+			if v == 1 {print!("{}", "■".green());}
+			else      {print!("{}", "▢".red()  );}
+		}
+		print!("\n");
+	}
+	s
+}
+
+impl CellularAutomaton {
+	pub fn print(&self) -> &Self {
+		print_ca(self)
+	}
+}
+
 fn animated(width:usize, height:usize, steps:u64, alive_prob:f64, delay:u32, preview:bool) {
 	let mut c = CellularAutomaton::new(width, height);
 	c.set_processor(conway_next);
 	clear().expect("failed to clear screen");
-	c.randomize_prob(alive_prob / 100.0).print();
+	c.randomize_prob(alive_prob / 100.0);
 	println!("Starting...");
 	println!("Press enter to start...");
 	println!("{}", alive_prob / 100.0);
