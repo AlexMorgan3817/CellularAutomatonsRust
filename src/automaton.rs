@@ -18,11 +18,6 @@ pub struct CellularAutomaton {
 
 impl CellularAutomaton
 {
-	pub fn set_processor(&mut self, processor: fn(&Self, usize, usize) -> i32) -> &mut Self
-	{
-		self.cell_processor = processor;
-		self
-	}
 	pub fn new(x:usize, y:usize) -> CellularAutomaton{
 		let mut this = CellularAutomaton{
 			cells: vec![vec![0; y]; x],
@@ -32,6 +27,17 @@ impl CellularAutomaton
 		};
 		this.set_xy(x, y, 0);
 		this
+	}
+	pub fn new_with_processor(x:usize, y:usize, cell_processor: fn(&Self, usize, usize) -> i32) -> CellularAutomaton {
+		let mut this = CellularAutomaton::new(x, y);
+		this.set_processor(cell_processor);
+		this
+	}
+
+	pub fn set_processor(&mut self, processor: fn(&Self, usize, usize) -> i32) -> &mut Self
+	{
+		self.cell_processor = processor;
+		self
 	}
 
 	pub fn set_xy(&mut self, x:usize, y:usize, state: i32) -> &mut Self {
