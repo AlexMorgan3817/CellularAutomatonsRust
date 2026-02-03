@@ -1,14 +1,29 @@
 [package]
-name = "cellular"
-version = "0.1.0"
+name = "rayon-ca"
+description = "High-performance cellular automaton's implementation in Rust LIB with CLI app and WebP animation export."
+version = "0.2.0"
 edition = "2021"
+keywords = [
+	"cellular-automata",
+	"rayon",
+	"simulation",
+	"cli",
+	"parallel"
+]
+categories = [
+	"games",
+	"game-development",
+	"simulation",
+	"concurrency",
+	"command-line-utilities"
+]
 
 [[bin]]
 name = "main"
 path = "src/main.rs"
 
 [lib]
-name = "cellular"
+name = "rayon_ca"
 path = "src/lib.rs"
 
 [features]
