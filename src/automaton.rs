@@ -2,7 +2,7 @@ use std::{mem::swap};
 use rand::{random_range, random_bool};
 use rayon::prelude::*;
 
-use crate::strats::conway_next;
+use crate::strats::{conway_next};
 
 pub struct CellularAutomaton {
 	pub x:usize,
@@ -145,7 +145,7 @@ mod tests {
 	use std::time;
 	#[cfg(feature = "cli")]
 	use colored::{Colorize, ColoredString};
-	use crate::automaton::{CellularAutomaton};
+	use crate::automaton::CellularAutomaton;
 
 	fn bechmark(steps_count: u32, threshold: u128, x: usize, y: usize) -> u128{
 		let mut c:CellularAutomaton = CellularAutomaton::new(x, y);
@@ -223,7 +223,7 @@ mod tests {
 	#[test]
 	fn test11_100(){
 		// let mut c = CellularAutomaton::new(x, y);
-		testing(10, 100, 100, 100, TESTS_AMT);
+		testing(20, 100, 100, 100, TESTS_AMT);
 	}
 	#[test]
 	fn test12_100_200x200(){
@@ -264,5 +264,46 @@ mod tests {
 	#[test]
 	fn test33_50_1000x1000(){
 		testing(200, 50, 1000, 1000, TESTS_AMT);
+	}
+	fn ns2s(n:i128) -> f64{
+		(n as f64) / (10 as f64).powf(9.0)
+	}
+	#[test]
+	fn switching_test(){
+		println!("Switching Test");
+		for _ in 0..TESTS_AMT{
+			switching();
+		}
+	}
+	fn switching(){
+		// use crate::strats::corridors_next;
+		use crate::strats::conway_next;
+		let mut c1 = CellularAutomaton::new(100, 100);
+		let start_time = time::Instant::now();
+		c1.steps(100);
+		let elapsed_time = start_time.elapsed().as_nanos();
+		println!("Elapsed time for c1: {}ns", elapsed_time);
+
+		let mut c2 = CellularAutomaton::new(100, 100);
+
+		let p1_start = time::Instant::now();
+		c2.steps(50);
+		let p1_elapsed = p1_start.elapsed().as_nanos();
+		println!("Elapsed time for p1: {}ns", p1_elapsed);
+
+		c2.set_processor(conway_next);
+
+		let p2_start = time::Instant::now();
+		c2.steps(50);
+		let p2_elapsed = p2_start.elapsed().as_nanos();
+		// let c2_elapsed = p1_start.elapsed().as_nanos();
+		println!("Elapsed time for p2: {}ns", p2_elapsed);
+
+		println!("Difference between ca1 ({}ns) and ca2 ({}ns): {}ns, {}",
+			ns2s(elapsed_time as i128),
+			ns2s((p2_elapsed + p1_elapsed) as i128),
+			ns2s(((p2_elapsed + p1_elapsed) - (elapsed_time)) as i128),
+			((p2_elapsed+p1_elapsed) as f64)/(elapsed_time as f64)
+		);
 	}
 }
