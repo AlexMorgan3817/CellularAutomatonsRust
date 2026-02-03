@@ -15,7 +15,7 @@
 		},
 		{
 			"type": "shell", "command": "cargo",
-			"args": ["test", "--release", "--all", "--", "--nocapture", "--test-threads=1"],
+			"args": ["test", "--release", "--lib", "--features", "cli", "--", "--nocapture", "--test-threads=1"],
 			"problemMatcher": ["$rustc"],
 			"group": "build", "label": "Test Release"
 		},

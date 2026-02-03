@@ -1,15 +1,30 @@
 #[cfg(feature = "cli")]
-use std::time;
-use std::time::Duration;
-use std::thread;
-use std::io;
 use clearscreen::clear;
-use std::fmt::Debug;
+#[cfg(feature = "cli")]
 use clap::{Parser, Subcommand};
+#[cfg(feature = "cli")]
 use colored::Colorize;
+
+#[cfg(feature = "cli")]
+use std::time;
+#[cfg(feature = "cli")]
+use std::time::Duration;
+#[cfg(feature = "cli")]
+use std::io;
+#[cfg(feature = "cli")]
+use std::thread;
 
 pub mod automaton;
 use crate::automaton::CellularAutomaton;
+
+pub mod strats;
+#[cfg(feature = "cli")]
+use crate::strats::*;
+
+#[cfg(feature = "cli")]
+pub mod webping;
+#[cfg(feature = "cli")]
+use crate::webping::{save_webp_anim};
 
 
 impl CellularAutomaton {
@@ -19,19 +34,18 @@ impl CellularAutomaton {
 				let v = self.cells[x][y];
 				// if v == 1 {print!("{}", "#".green());}
 				// else      {print!("{}", "X".red()  );}
+				#[cfg(feature = "cli")]
 				if v == 1 {print!("{}", "■".green());}
 				else      {print!("{}", "▢".red()  );}
+				#[cfg(not(feature = "cli"))]
+				if v == 1 {print!("{}", "■");}
+				else      {print!("{}", "▢");}
 			}
 			print!("\n");
 		}
 		self
 	}
 }
-pub mod strats;
-use crate::strats::*;
-
-pub mod webping;
-use crate::webping::{save_webp_anim};
 
 // fn prompt<T>(prompt: &str) -> T where T: std::str::FromStr + Debug {
 // 	print!("{} ", prompt);
@@ -46,6 +60,7 @@ use crate::webping::{save_webp_anim};
 // 	}
 // }
 
+#[cfg(feature = "cli")]
 #[derive(Parser, Debug)]
 struct Args {
 	#[command(subcommand)]
@@ -60,6 +75,7 @@ struct Args {
 	alive_prob: f64
 }
 
+#[cfg(feature = "cli")]
 #[derive(Subcommand, Debug)]
 enum Commands {
     Animated {
@@ -78,7 +94,19 @@ enum Commands {
 	}
 }
 
-fn main() {
+fn main(){
+	#[cfg(feature = "cli")]
+	cli_main();
+	#[cfg(not(feature = "cli"))]
+	{
+		println!("To use rayon-ca as bin/CLI, you need to add feature CLI.");
+		println!("Try cargo install rayon-ca --features cli");
+		std::process::exit(1);
+	}
+}
+
+#[cfg(feature = "cli")]
+fn cli_main() {
 	let arguments = Args::parse();
 	println!("{:?}", arguments);
 	let width = arguments.width;
@@ -101,6 +129,7 @@ fn main() {
 	// }
 }
 
+#[cfg(feature = "cli")]
 fn result(width:usize, height:usize, steps:u64, alive_prob:f64, output:String) {
 	let mut c = CellularAutomaton::new(width, height);
 	c.set_processor(conway_next);
@@ -123,6 +152,7 @@ fn result(width:usize, height:usize, steps:u64, alive_prob:f64, output:String) {
 	};
 }
 
+#[cfg(feature = "cli")]
 fn animated(width:usize, height:usize, steps:u64, alive_prob:f64, delay:u32, preview:bool) {
 	let mut c = CellularAutomaton::new(width, height);
 	c.set_processor(conway_next);
@@ -147,6 +177,7 @@ fn animated(width:usize, height:usize, steps:u64, alive_prob:f64, delay:u32, pre
 	}
 }
 
+#[cfg(feature = "cli")]
 fn webp(width:usize, height:usize, steps:u64, alive_prob:f64, output:String) {
 	let mut c = CellularAutomaton::new_with_processor(width, height, conway_next);
 	println!("{}", alive_prob / 100.0);

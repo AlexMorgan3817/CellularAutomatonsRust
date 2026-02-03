@@ -1,5 +1,4 @@
 use std::{mem::swap};
-use image::imageops::FilterType::CatmullRom;
 use rand::{random_range, random_bool};
 use rayon::prelude::*;
 
@@ -143,10 +142,10 @@ impl CellularAutomaton
 
 #[cfg(test)]
 mod tests {
-	#[cfg(feature = "cli")]
 	use std::time;
+	#[cfg(feature = "cli")]
 	use colored::{Colorize, ColoredString};
-    use crate::automaton::{CellularAutomaton};
+	use crate::automaton::{CellularAutomaton};
 
 	fn bechmark(steps_count: u32, threshold: u128, x: usize, y: usize) -> u128{
 		let mut c:CellularAutomaton = CellularAutomaton::new(x, y);
@@ -169,7 +168,12 @@ mod tests {
 		let elapsed:u128 = prev.elapsed().as_millis();
 		if elapsed > threshold
 		{
-			println!("{}: {} > {}.", "БЕНЧМАРК НЕ ПРОЙДЕН".red(),elapsed, threshold);
+			let message = "Benchmark failed";
+			#[cfg(feature = "cli")]
+			let msg = message.red();
+			#[cfg(not(feature = "cli"))]
+			let msg = message;
+			println!("{}: {} > {}.", msg, elapsed, threshold);
 			assert!(false);
 		}
 		// println!("Done in {}ms ({}ms)", elapsed, threshold);
@@ -184,11 +188,25 @@ mod tests {
 			let result:u128 = bechmark(steps_count, threshold, x, y);
 			mean = (mean * (results) + result) / (results + 1);
 			results += 1;
+			#[cfg(feature = "cli")]
 			let status:ColoredString;
-			if result < threshold{
-				status = "OK".green();
-			} else {
-				status = "FAIL".red();
+			#[cfg(feature = "cli")]
+			{
+				if result < threshold{
+					status = "OK".green();
+				} else {
+					status = "FAIL".red();
+				}
+			}
+			#[cfg(not(feature = "cli"))]
+			let status:&'static str;
+			#[cfg(not(feature = "cli"))]
+			{
+				if result < threshold{
+					status = "OK";
+				} else {
+					status = "FAIL";
+				}
 			}
 			println!("Test {}: {:.3}s ({:.3}s): {}",
 				i + 1,
