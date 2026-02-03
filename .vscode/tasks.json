@@ -30,6 +30,12 @@
 			"command": "cargo run --release -- 100 100 -s 1000 res -o result/out.frame",
 			"problemMatcher": ["$rustc"],
 			"group": "build", "label": "Run Res Test"
+		},
+		{
+			"type": "shell",
+			"command": "cargo run --release -- 100 20 -s 1000 -p 25 animated -d 100",
+			"problemMatcher": ["$rustc"],
+			"group": "build", "label": "Run Animated Test"
 		}
 	]
 }
