@@ -1,5 +1,5 @@
 <h1 align="center">
-Cellular Automatons on Rust
+Cellular Automatons on Rust (Rayon-CA)
 </h1>
 
 <div align="center">
@@ -15,6 +15,17 @@ Conway's game of life
 
 Corridors generator mk2
 </div>
+
+## Installation
+### CLI Installation
+```
+cargo install rayon-ca --features cli
+```
+
+### Cargo Crate Installation (Lib for integration)
+```
+cargo add rayon-ca
+```
 
 ## Milestones
 - [X] Lib
@@ -147,7 +158,3 @@ test automaton::tests::test33_50_1000x1000 ... 50 15000 1000 1000
 Test 0: 0.346s (15.000s): OK
 ```
 ![alt text](.github/RayonBench.png)
-
-
-
-

@@ -18,6 +18,8 @@ categories = [
 	"command-line-utilities"
 ]
 license-file = "LICENSE"
+documentation = "https://docs.rs/rayon-ca"
+repository = "https://github.com/AlexMorgan3817/CellularAutomatonsRust"
 
 [[bin]]
 name = "main"
