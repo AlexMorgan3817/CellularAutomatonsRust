@@ -2,27 +2,26 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "cargo", "command": "build",
-			"args": ["--release"],
+			"type": "shell", "command": "cargo",
+			"args": ["build", "--release", "--features", "cli"],
 			"problemMatcher": ["$rustc"],
-			"group": "build", "label": "Build Bin Release"
+			"group": "build", "label": "Build CLI Release"
 		},
 		{
-			"type": "cargo", "command": "test",
-			"args": ["--release", "--all", "--", "--nocapture", "--test-threads=1"],
+			"type": "shell", "command": "cargo",
+			"args": ["build","--lib", "--release", "--no-default-features"],
+			"problemMatcher": ["$rustc"],
+			"group": "build", "label": "Build LIB Release"
+		},
+		{
+			"type": "shell", "command": "cargo",
+			"args": ["test", "--release", "--all", "--", "--nocapture", "--test-threads=1"],
 			"problemMatcher": ["$rustc"],
 			"group": "build", "label": "Test Release"
 		},
 		{
-			"type": "cargo", "command": "run",
-			"args": ["--release"],
-			"problemMatcher": ["$rustc"],
-			"group": "build", "label": "Run Release"
-		},
-		{
-			"type": "cargo", "command": "run",
-			"args": ["--release", "--",
-			"100", "100", "-s", "100", "-p", "55.0", "webp"],
+			"type": "shell",
+			"command": "cargo run --release -- 100 100 -s 100 -p 55.0 webp",
 			"problemMatcher": ["$rustc"],
 			"group": "build", "label": "Run WebP Test"
 		},
