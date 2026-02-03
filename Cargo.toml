@@ -17,6 +17,7 @@ categories = [
 	"concurrency",
 	"command-line-utilities"
 ]
+license-file = "LICENSE"
 
 [[bin]]
 name = "main"
@@ -39,8 +40,8 @@ cli = [
 ]
 
 [dependencies]
-rand = "0.9.2"
-rayon = "1.11.0"
+rand = "0.9"
+rayon = "1.11"
 clearscreen = { version = "4.0.2", optional = true }
 colored = { version = "3.0.0", optional = true }
 image = { version = "0.25.9", optional = true }
