@@ -1,5 +1,6 @@
 use crate::automaton::CellularAutomaton;
 
+/// Conway's Game of Life
 #[inline(always)]
 pub fn conway_next(c: &CellularAutomaton, x:usize, y:usize) -> i32{
 	let mut living_count = 0;
@@ -32,7 +33,7 @@ pub fn conway_next(c: &CellularAutomaton, x:usize, y:usize) -> i32{
 	}
 }
 
-
+/// Attempt to recreate by memory my LifeCorridors from C# Cellulars. Made just for testing and to be example.
 #[inline(always)]
 pub fn corridors_next(automaton:&CellularAutomaton, x:usize, y:usize) -> i32{
 	let iam = automaton.cells[x][y];

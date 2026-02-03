@@ -1,23 +1,26 @@
 use std::{mem::swap};
+use image::imageops::FilterType::CatmullRom;
 use rand::{random_range, random_bool};
 use rayon::prelude::*;
 
 use crate::strats::conway_next;
 
 pub struct CellularAutomaton {
-	// cells: LinkedList<LinkedList<i32>>,
-	// cells: &[&[i32; Y]; X],
-	// cells: Vec<Vec<i32>>,/
-	pub cells: Vec<Vec<i32>>,
-	next_cells: Vec<Vec<i32>>,
 	pub x:usize,
 	pub y:usize,
+	/// Field of simulation with self.x and self.y dimensions.
+	pub cells: Vec<Vec<i32>>,
+	/// Temporary field for next generation, swaps with cells after generating all self.next() in self.step()
+	next_cells: Vec<Vec<i32>>,
 	// pub cell_processor: Arc<dyn Fn(&Self, usize, usize) -> i32 + Sync + Send + 'static>,
 	pub cell_processor: fn(&Self, usize, usize) -> i32,
 }
 
+/// Construction
 impl CellularAutomaton
 {
+	/// Constructor with the given dimensions and default (Conway's game of life) processor.
+	/// ---
 	pub fn new(x:usize, y:usize) -> CellularAutomaton{
 		let mut this = CellularAutomaton{
 			cells: vec![vec![0; y]; x],
@@ -28,38 +31,42 @@ impl CellularAutomaton
 		this.set_xy(x, y, 0);
 		this
 	}
-	pub fn new_with_processor(x:usize, y:usize, cell_processor: fn(&Self, usize, usize) -> i32) -> CellularAutomaton {
+
+	/// Constructor with the given dimensions and proccesing lambda.
+	/// ---
+	pub fn new_with_processor(
+			x:usize,
+			y:usize,
+			processor: fn(c:&CellularAutomaton, x:usize, y:usize) -> i32
+	) -> CellularAutomaton {
 		let mut this = CellularAutomaton::new(x, y);
-		this.set_processor(cell_processor);
+		this.set_processor(processor);
 		this
 	}
-
-	pub fn set_processor(&mut self, processor: fn(&Self, usize, usize) -> i32) -> &mut Self
+	/// Sets the cell processor lambda for the automaton.
+	/// ---
+	///
+	/// **processor**: fn(*C*:&CellularAutomaton, *X*:usize, *Y*:usize) -> NextState:i32
+	///
+	/// ---
+	/// Allows to use multiple strategies for one field,
+	/// by swapping cell_processor instead of cloning or moving matrices between automatons.
+	pub fn set_processor(&mut self, processor: fn(c:&CellularAutomaton, x:usize, y:usize) -> i32) -> &mut Self
 	{
 		self.cell_processor = processor;
 		self
 	}
-
-	pub fn set_xy(&mut self, x:usize, y:usize, state: i32) -> &mut Self {
-		self.x = x;
-		self.y = y;
-		self.cells = Vec::new();
-		for _ in 0..x {
-			let mut row = Vec::new();
-			for _ in 0..y {
-				row.push(state);
-			}
-			self.cells.push(row);
-		}
-		self
-	}
-
+}
+/// Core processing
+impl CellularAutomaton
+{
+	/// Processes the next state of one cell by coordinates via lambda processor self.cell_processor.
 	#[inline]
 	pub fn next(&self, x:usize, y:usize) -> i32
 	{
 		(&self.cell_processor)(self, x, y)
 	}
-
+	/// Processes field with rayon borrowing unmutable self to self.cell_processor.
 	pub fn step(&mut self) -> &mut Self {
 		self.next_cells = (0..self.x)
 			.into_par_iter()
@@ -72,13 +79,19 @@ impl CellularAutomaton
 		swap(&mut self.cells, &mut self.next_cells);
 		self
 	}
+	/// Method to process multiple steps of the automaton as one call.
+	///
+	/// Will be more useful in FFI. But still solves convenience of using.
 	pub fn steps(&mut self, steps:u64) -> &mut Self {
 		for _ in 0..steps {
 			self.step();
 		}
 		self
 	}
-
+}
+/// Field fillings
+impl CellularAutomaton
+{
 	/// TODO: Add randomize strat
 	pub fn randomize(&mut self) -> &mut Self {
 		for x in 0..self.x
@@ -101,6 +114,31 @@ impl CellularAutomaton
 		}
 		self
 	}
+	/// Sets the size of the automaton and initializes all cells with the given state.
+	/// ---
+	pub fn set_xy(&mut self, x:usize, y:usize, init_state: i32) -> &mut Self {
+		self.x = x;
+		self.y = y;
+		self.cells = Vec::new();
+		for _ in 0..x {
+			let mut row = Vec::new();
+			for _ in 0..y {
+				row.push(init_state);
+			}
+			self.cells.push(row);
+		}
+		self
+	}
+	// /// Sets the size of the automaton and initializes all cells with the given matrix.
+	// /// ---
+	// /// Allows to use multiple strategies for one field.
+	// /// But better swap cell_processor instead, it will be more perfomant than cloning matrices between automatons.
+	// pub fn set_matrix(&mut self, matrix: &Vec<Vec<i32>>) -> &mut Self {
+	// 	self.x = matrix.len();
+	// 	self.y = matrix[0].len();
+	// 	self.cells = matrix.clone();
+	// 	self
+	// }
 }
 
 #[cfg(test)]
