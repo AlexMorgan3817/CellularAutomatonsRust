@@ -1,7 +1,7 @@
 [package]
 name = "rayon-ca"
 description = "High-performance cellular automaton's implementation in Rust LIB with CLI app and WebP animation export."
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 keywords = [
 	"cellular-automata",
@@ -17,9 +17,17 @@ categories = [
 	"concurrency",
 	"command-line-utilities"
 ]
-license-file = "LICENSE"
 documentation = "https://docs.rs/rayon-ca"
 repository = "https://github.com/AlexMorgan3817/CellularAutomatonsRust"
+
+license = "MIT"
+license-file = "LICENSE"
+
+exclude = [
+	".cargo/",
+	".github/",
+	'.vscode/'
+]
 
 [[bin]]
 name = "main"

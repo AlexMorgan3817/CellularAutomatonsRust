@@ -126,7 +126,7 @@ Test 0: 5.846s (15.000s): OK
 AS EXPECTED: Linear 2D Vec matrix is faster than hashmap with all it's tuples, unwraps and hashing.
 
 
-![alt text](image.png)
+![alt text](.github/image.png)
 Plot of Hashmap implementation time divided by Vec implementation time. (Pairs sorted by hashmap time, see [notebook](.github/benches.ipynb))
 
 
